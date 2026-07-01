@@ -13,9 +13,6 @@ const LoginForm = ({ setIsLoggedIn }) => {
   const tempEmail = import.meta.env.VITE_APP_TEMP_EMAIL;
   const tempPassword = import.meta.env.VITE_APP_TEMP_PASSWORD;
 
-  console.log(`${tempEmail}`);
-  console.log(`${tempPassword}`);
-
   const handleSubmit = (e) => {
     e.preventDefault();
 

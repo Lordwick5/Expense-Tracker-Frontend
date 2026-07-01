@@ -5,9 +5,11 @@ import { useState } from "react";
 function Home() {
   const navigate = useNavigate();
 
-  const [item, setItem] = useState("");
-  const [amount, setAmount] = useState("");
-  const [expenses, setExpenses] = useState([]);
+  const [expenseData, setExpenseData] = useState({
+    item: "",
+    amount: "",
+    expenses: [],
+  });
 
   const logout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -15,28 +17,37 @@ function Home() {
   };
 
   const addExpense = () => {
-    if (!item || !amount) return;
+    if (!expenseData.item || !expenseData.amount) return;
 
     const newExpense = {
       id: Date.now(),
-      item: item,
-      amount: amount,
+      item: expenseData.item,
+      amount: expenseData.amount,
     };
 
-    setExpenses([...expenses, newExpense]);
-    setItem("");
-    setAmount("");
+    setExpenseData({
+      ...expenseData,
+      expenses: [...expenseData.expenses, newExpense],
+      item: "",
+      amount: "",
+    });
   };
 
   const deleteExpense = (id) => {
-    setExpenses(expenses.filter((expense) => expense.id !== id));
+    setExpenseData({
+      ...expenseData,
+      expenses: expenseData.expenses.filter((expense) => expense.id !== id),
+    });
   };
 
   const editExpense = (id) => {
-    const expense = expenses.find((expense) => expense.id === id);
-    setItem(expense.item);
-    setAmount(expense.amount);
-    deleteExpense(id);
+    const expense = expenseData.expenses.find((expense) => expense.id === id);
+    setExpenseData({
+      ...expenseData,
+      item: expense.item,
+      amount: expense.amount,
+      expenses: expenseData.expenses.filter((e) => e.id !== id),
+    });
   };
 
   const handleKeyDown = (e) => {
@@ -62,8 +73,8 @@ function Home() {
               id="item"
               type="text"
               placeholder="Enter your item"
-              value={item}
-              onChange={(e) => setItem(e.target.value)}
+              value={expenseData.item}
+              onChange={(e) => setExpenseData({ ...expenseData, item: e.target.value })}
               onKeyDown={handleKeyDown}
               autoComplete="off"
             />
@@ -75,8 +86,8 @@ function Home() {
               id="amount"
               type="text"
               placeholder="Enter your amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              value={expenseData.amount}
+              onChange={(e) => setExpenseData({ ...expenseData, amount: e.target.value })}
               onKeyDown={handleKeyDown}
               autoComplete="off"
             />
@@ -86,7 +97,7 @@ function Home() {
           </div>
         </div>
 
-        {expenses.length > 0 && (
+        {expenseData.expenses.length > 0 && (
           <table>
             <thead>
               <tr>
@@ -97,7 +108,7 @@ function Home() {
               </tr>
             </thead>
             <tbody>
-              {expenses.map((expense, index) => (
+              {expenseData.expenses.map((expense, index) => (
                 <tr key={expense.id}>
                   <td>{index + 1}</td>
                   <td>{expense.item}</td>
