@@ -1,53 +1,104 @@
 import "/src/home.css";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Home() {
   const navigate = useNavigate();
 
-  const [expenseData, setExpenseData] = useState({
-    item: "",
-    amount: "",
-    expenses: [],
-  });
+  const [item, setItem] = useState("");
+  const [amount, setAmount] = useState("");
+  const [expenses, setExpenses] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const token = localStorage.getItem("token");
+
+  const authHeaders = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
 
   const logout = () => {
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
-  const addExpense = () => {
-    if (!expenseData.item || !expenseData.amount) return;
+  const fetchExpenses = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses`, {
+        headers: authHeaders,
+      });
 
-    const newExpense = {
-      id: Date.now(),
-      item: expenseData.item,
-      amount: expenseData.amount,
-    };
+      if (response.status === 401) {
+        logout();
+        return;
+      }
 
-    setExpenseData({
-      ...expenseData,
-      expenses: [...expenseData.expenses, newExpense],
-      item: "",
-      amount: "",
-    });
+      const result = await response.json();
+      setExpenses(result.expenses);
+    } catch (err) {
+      console.error("Fetch expenses error:", err);
+      setErrorMessage("Could not load expenses.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteExpense = (id) => {
-    setExpenseData({
-      ...expenseData,
-      expenses: expenseData.expenses.filter((expense) => expense.id !== id),
-    });
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+
+  const addExpense = async () => {
+    if (!item || !amount) return;
+
+    try {
+      const url = editingId
+        ? `${import.meta.env.VITE_API_URL}/api/expenses/${editingId}`
+        : `${import.meta.env.VITE_API_URL}/api/expenses`;
+      const method = editingId ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: authHeaders,
+        body: JSON.stringify({ item, amount }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        setErrorMessage(result.message || "Could not save expense.");
+        return;
+      }
+
+      setItem("");
+      setAmount("");
+      setEditingId(null);
+      fetchExpenses();
+    } catch (err) {
+      console.error("Add expense error:", err);
+      setErrorMessage("Something went wrong. Please try again.");
+    }
   };
 
-  const editExpense = (id) => {
-    const expense = expenseData.expenses.find((expense) => expense.id === id);
-    setExpenseData({
-      ...expenseData,
-      item: expense.item,
-      amount: expense.amount,
-      expenses: expenseData.expenses.filter((e) => e.id !== id),
-    });
+  const deleteExpense = async (id) => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/expenses/${id}`, {
+        method: "DELETE",
+        headers: authHeaders,
+      });
+      fetchExpenses();
+    } catch (err) {
+      console.error("Delete expense error:", err);
+      setErrorMessage("Could not delete expense.");
+    }
+  };
+
+  const editExpense = (expense) => {
+    setItem(expense.item);
+    setAmount(expense.amount);
+    setEditingId(expense._id);
   };
 
   const handleKeyDown = (e) => {
@@ -73,8 +124,8 @@ function Home() {
               id="item"
               type="text"
               placeholder="Enter your item"
-              value={expenseData.item}
-              onChange={(e) => setExpenseData({ ...expenseData, item: e.target.value })}
+              value={item}
+              onChange={(e) => setItem(e.target.value)}
               onKeyDown={handleKeyDown}
               autoComplete="off"
             />
@@ -86,45 +137,51 @@ function Home() {
               id="amount"
               type="text"
               placeholder="Enter your amount"
-              value={expenseData.amount}
-              onChange={(e) => setExpenseData({ ...expenseData, amount: e.target.value })}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
               onKeyDown={handleKeyDown}
               autoComplete="off"
             />
             <button className="button" onClick={addExpense}>
-              Add
+              {editingId ? "Update" : "Add"}
             </button>
           </div>
         </div>
 
-        {expenseData.expenses.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Item</th>
-                <th>Amount</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expenseData.expenses.map((expense, index) => (
-                <tr key={expense.id}>
-                  <td>{index + 1}</td>
-                  <td>{expense.item}</td>
-                  <td>Rs. {expense.amount}</td>
-                  <td>
-                    <button className="edit-btn" onClick={() => editExpense(expense.id)}>
-                      Edit
-                    </button>
-                    <button className="delete-btn" onClick={() => deleteExpense(expense.id)}>
-                      Delete
-                    </button>
-                  </td>
+        {errorMessage && <p className="error-text">{errorMessage}</p>}
+
+        {loading ? (
+          <p>Loading expenses...</p>
+        ) : (
+          expenses.length > 0 && (
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No.</th>
+                  <th>Item</th>
+                  <th>Amount</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {expenses.map((expense, index) => (
+                  <tr key={expense._id}>
+                    <td>{index + 1}</td>
+                    <td>{expense.item}</td>
+                    <td>Rs. {expense.amount}</td>
+                    <td>
+                      <button className="edit-btn" onClick={() => editExpense(expense)}>
+                        Edit
+                      </button>
+                      <button className="delete-btn" onClick={() => deleteExpense(expense._id)}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
         )}
       </main>
     </div>

@@ -1,4 +1,5 @@
 import LoginForm from "./loginform";
+import RegisterForm from "./register";
 import ErrorBoundary from "./errorboundary";
 import Home from "./home";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -12,6 +13,8 @@ function App() {
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<LoginForm setIsLoggedIn={setIsLoggedIn} />} />
+
+          <Route path="/register" element={<RegisterForm />} />
 
           <Route
             path="/home"

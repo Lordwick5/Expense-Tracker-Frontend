@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: 10px;
   width: 300px;
-  margin: 100px auto;
+  margin: 300px auto;
 }
 
 .input {
@@ -12,16 +12,19 @@
   border: 1px solid #ccc;
   width: 100%;
   box-sizing: border-box;
+  margin: 3px;
 }
 
 .password-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  width: 100%;
+  gap: 2px;
+  margin-right: 2px;
 }
 
 .button {
-  padding: 10px;
+  padding: 11px;
   background-color: #4f46e5;
   color: white;
   border: none;
@@ -31,4 +34,35 @@
 
 .submit-btn {
   width: 100%;
+  margin: 3px;
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.password-field .input {
+  width: 100%;
+  padding-right: 2.5rem;
+  box-sizing: border-box;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: #9ca3af;
+}
+
+.toggle-password:hover {
+  color: #e5e7eb;
 }
