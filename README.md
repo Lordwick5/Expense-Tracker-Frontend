@@ -2,6 +2,9 @@
 
 A full-stack expense tracking app built with React and Express. Users can register, log in, and manage their own personal expenses, all backed by a MongoDB database — so your data is tied to your account and persists across sessions and devices.
 
+**Live demo:** https://expense-tracker-three-zeta-99.vercel.app
+(Backend API is hosted separately on Render — the frontend is already configured to talk to it, no setup required to try it out.)
+
 ## Features
 
 - **User authentication** — register and log in with email/password (JWT-based sessions)
@@ -118,6 +121,14 @@ The app will be available at `http://localhost:5173`.
 
 Authenticated requests require an `Authorization: Bearer <token>` header, where `<token>` is the JWT returned on login/registration.
 
+## Deploying Your Own Copy
+
+This project is deployed with the frontend on **Vercel** and the backend on **Render**, with the database on **MongoDB Atlas**. If you deploy your own copy:
+
+- Set `VITE_API_URL` in your frontend's environment variables to your deployed backend URL.
+- Update the `origin` array in `backend/src/app.js` to include your deployed frontend's exact URL (no trailing slash — CORS origin matching is exact-string, and a mismatch here is the most common deploy issue).
+- Whitelist your backend host's IP in MongoDB Atlas under **Network Access** (or allow access from anywhere, `0.0.0.0/0`, for a quick personal/demo setup — not recommended for production apps handling real user data).
+
 ## Roadmap / Ideas
 
 - Expense categories and filtering
@@ -127,5 +138,5 @@ Authenticated requests require an `Authorization: Bearer <token>` header, where 
 ## License
 
 Copyright (c) 2026 Prashant Chaudhary. All rights reserved.
- 
+
 This project was created for personal and educational purposes. You may view and reference the code for learning purposes, but copying, redistributing, or using it for commercial purposes without permission is not allowed.
