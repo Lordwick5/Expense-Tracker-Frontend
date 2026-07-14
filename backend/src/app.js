@@ -9,7 +9,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://expense-tracker-ndi4v6kxj-prashant-chaudharys-projects-133fa17b.vercel.app",
+      "https://expense-tracker-git-main-prashant-chaudharys-projects-133fa17b.vercel.app",
     ],
     credentials: true,
   }),
