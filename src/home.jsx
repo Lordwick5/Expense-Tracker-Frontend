@@ -52,7 +52,17 @@ function Home() {
   }, []);
 
   const addExpense = async () => {
-    if (!item || !amount) return;
+    if (!item.trim()) {
+      setErrorMessage("Please enter an item.");
+      return;
+    }
+
+    if (!amount) {
+      setErrorMessage("Please enter an amount.");
+      return;
+    }
+
+    setErrorMessage("");
 
     try {
       const url = editingId
@@ -125,7 +135,13 @@ function Home() {
               type="text"
               placeholder="Enter your item"
               value={item}
-              onChange={(e) => setItem(e.target.value)}
+              required
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[A-Za-z\s]*$/.test(value)) {
+                  setItem(value);
+                }
+              }}
               onKeyDown={handleKeyDown}
               autoComplete="off"
             />
@@ -138,6 +154,7 @@ function Home() {
               type="number"
               inputMode="numeric"
               placeholder="Enter your amount"
+              required
               value={amount}
               onChange={(e) => {
                 const value = e.target.value;
