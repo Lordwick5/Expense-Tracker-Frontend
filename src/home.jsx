@@ -135,10 +135,16 @@ function Home() {
             <label htmlFor="amount">Amount</label>
             <input
               id="amount"
-              type="text"
+              type="number"
+              inputMode="numeric"
               placeholder="Enter your amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*$/.test(value)) {
+                  setAmount(value);
+                }
+              }}
               onKeyDown={handleKeyDown}
               autoComplete="off"
             />
