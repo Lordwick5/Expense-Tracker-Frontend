@@ -83,7 +83,7 @@ const LoginForm = ({ setIsLoggedIn }) => {
 
         {errorMessage && <p className="error-text">{errorMessage}</p>}
 
-        <button className="button submit-btn" type="submit" disabled={setIsSubmitting}>
+        <button className="button submit-btn" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
 
